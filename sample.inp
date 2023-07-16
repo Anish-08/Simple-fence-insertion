@@ -1,0 +1,54 @@
+#include <atomic>
+#include <pthread.h>
+// #include <assert.h>
+// #include <stdatomic.h>
+
+using namespace std;
+
+//atomic<int> x,y;
+
+int x,y;
+
+void*  a(void* obj)
+{
+	int p;
+    //x.store(1,memory_order_relaxed);
+    //p = y.load(memory_order_relaxed);
+    x = 1;
+    p = y;
+    
+    printf("p is %d\n",p);
+    return NULL;
+}
+
+void*  b(void *obj)
+{       
+    int q;
+    int u=0;
+    for(u=0;u<10000000;u++){
+        //y.store(u,memory_order_relaxed);
+        //q = x.load(memory_order_relaxed);
+        y = u;
+        q = x;
+        if(q==1) break;
+    }
+    printf("u is %d\n",u);
+    printf("q is %d\n",q);
+    return NULL;
+}
+
+int main(int argc, char **argv)
+{
+    pthread_t t1, t2;
+    x = 0;
+    y=0;
+	//x.store(0,memory_order_seq_cst); y.store(0,memory_order_seq_cst);
+
+    pthread_create(&t1, NULL, &b, NULL);
+    pthread_create(&t2, NULL, &a, NULL);
+
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+
+    return 0;
+}
